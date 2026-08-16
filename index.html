@@ -381,16 +381,25 @@
         }
       }
 
+      @page {
+        size: A4;
+        margin: 12mm 14mm;
+      }
+
       @media print {
+        html,
         body {
           background: #fff;
           padding: 0;
+          margin: 0;
+          line-height: 1.55;
         }
         .page {
           max-width: 100%;
         }
         .record-card {
           box-shadow: none;
+          border-color: #d9d6cb;
         }
         .hero,
         .record-card,
@@ -401,6 +410,116 @@
         }
         .pdf-btn {
           display: none !important;
+        }
+
+        .hero {
+          margin-bottom: 14px;
+          gap: 10px;
+        }
+        .hero-top {
+          padding-bottom: 8px;
+          gap: 10px;
+        }
+        .name {
+          font-size: 26px;
+        }
+        .role {
+          font-size: 13.5px;
+        }
+        .role .mono {
+          font-size: 11px;
+        }
+        .badges {
+          gap: 6px;
+        }
+        .badge {
+          font-size: 10.5px;
+          padding: 3px 10px;
+        }
+
+        .record-card {
+          margin-bottom: 16px;
+        }
+        .record-head {
+          padding: 7px 14px;
+        }
+        .record-title {
+          font-size: 10.5px;
+        }
+        .record-list li {
+          padding: 5px 14px;
+          font-size: 11.5px;
+          gap: 8px;
+        }
+        .value.mono {
+          font-size: 11px;
+        }
+        .line-no {
+          font-size: 9.5px;
+        }
+
+        .block {
+          margin-bottom: 14px;
+        }
+        .block-title {
+          font-size: 14.5px;
+          margin-bottom: 8px;
+        }
+        .block-title .tag {
+          font-size: 14px;
+        }
+
+        .edu h3 {
+          font-size: 13px;
+        }
+        .edu p {
+          font-size: 11.5px;
+        }
+        .edu .meta {
+          font-size: 11px;
+          margin-top: 3px;
+        }
+
+        .summary {
+          font-size: 11.5px;
+          line-height: 1.7;
+          max-width: none;
+        }
+
+        .skills-grid {
+          gap: 8px;
+        }
+        .skill-row {
+          grid-template-columns: 120px 1fr;
+          gap: 10px;
+        }
+        .skill-label {
+          font-size: 11px;
+          padding-top: 3px;
+        }
+        .chip {
+          font-size: 10.5px;
+          padding: 4px 10px;
+          border-radius: 7px;
+        }
+
+        .foot-line {
+          margin-top: 18px;
+          padding-top: 10px;
+          font-size: 9.5px;
+        }
+
+        * {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .hero,
+        .record-card,
+        .block,
+        .record-list li {
+          break-inside: avoid;
+          page-break-inside: avoid;
         }
       }
 
@@ -531,7 +650,7 @@
             <span class="key">موبایل</span>
             <span class="colon">:</span>
             <span class="value mono"
-              ><a href="tel:+989300567128">09300567128</a></span
+              ><a href="tel:+989300567128">093000567128</a></span
             >
           </li>
           <li>
@@ -559,7 +678,7 @@
           </li>
           <li>
             <span class="line-no mono">05</span>
-            <span class="key">کانال تلگرام</span>
+            <span class="key">تلگرام کانال</span>
             <span class="colon">:</span>
             <span class="value mono"
               ><a
@@ -650,9 +769,7 @@
         </div>
       </section>
 
-      <div class="foot-line">// resume.render(meisam-maani) — updated 1405</div>
+      <div class="foot-line">// resume.render(meisam-maani) — updated 1404</div>
     </div>
   </body>
 </html>
-
-      
