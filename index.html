@@ -3,635 +3,87 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>میثم معانی — توسعه‌دهنده بک‌اند</title>
+    <title>میثم معانی — رزومه</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <style>
-      :root {
-        --paper: #f5f3ed;
-        --paper-deep: #ece9df;
-        --card: #ffffff;
-        --ink: #1b2422;
-        --ink-soft: #586360;
-        --ink-faint: #8b948f;
-        --teal: #0e5258;
-        --teal-deep: #0a3a3f;
-        --teal-glow: rgba(14, 82, 88, 0.1);
-        --amber: #b9832e;
-        --line: #dedacd;
-        --radius: 16px;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
-      body {
-        background:
-          radial-gradient(
-            1200px 500px at 15% -10%,
-            var(--teal-glow),
-            transparent 60%
-          ),
-          var(--paper);
-        color: var(--ink);
-        font-family: "Vazirmatn", sans-serif;
-        line-height: 1.85;
-        -webkit-font-smoothing: antialiased;
-        padding: 56px 20px 80px;
-      }
-
-      .mono {
-        font-family: "JetBrains Mono", monospace;
-      }
-
-      .page {
-        max-width: 760px;
-        margin: 0 auto;
-      }
-
-      /* ---------- HERO ---------- */
-      .hero {
-        display: flex;
-        flex-direction: column;
-        gap: 22px;
-        margin-bottom: 34px;
-        opacity: 0;
-        animation: rise 0.7s ease-out 0.05s forwards;
-      }
-
-      .hero-top {
-        display: flex;
-        align-items: baseline;
-        gap: 16px;
-        flex-wrap: wrap;
-        border-bottom: 2px solid var(--ink);
-        padding-bottom: 18px;
-      }
-
-      .name {
-        font-size: clamp(34px, 6vw, 46px);
-        font-weight: 900;
-        letter-spacing: -0.5px;
-        color: var(--ink);
-      }
-
-      .role {
-        font-size: 17px;
-        font-weight: 600;
-        color: var(--teal);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .role .mono {
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--ink-faint);
-        direction: ltr;
-      }
-
-      .badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .badge {
-        font-size: 12.5px;
-        font-weight: 600;
-        color: var(--ink-soft);
-        background: var(--paper-deep);
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 6px 14px;
-      }
-      .badge.location {
-        color: var(--teal-deep);
-        background: #fff;
-        border-color: var(--teal);
-      }
-
-      /* ---------- RECORD CARD (contact) ---------- */
-      .record-card {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: var(--radius);
-        box-shadow:
-          0 1px 2px rgba(20, 30, 28, 0.04),
-          0 12px 30px -18px rgba(20, 30, 28, 0.18);
-        overflow: hidden;
-        margin-bottom: 38px;
-        opacity: 0;
-        animation: rise 0.7s ease-out 0.18s forwards;
-      }
-
-      .record-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 13px 18px;
-        background: var(--teal-deep);
-        color: #eaf3f1;
-      }
-      .record-title {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 12.5px;
-        letter-spacing: 0.5px;
-        direction: ltr;
-        opacity: 0.9;
-      }
-      .record-dots {
-        display: flex;
-        gap: 6px;
-      }
-      .record-dots i {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: rgba(234, 243, 241, 0.35);
-        display: inline-block;
-      }
-      .record-dots i:last-child {
-        background: var(--amber);
-      }
-
-      .record-list {
-        list-style: none;
-        padding: 6px 0;
-      }
-      .record-list li {
-        display: grid;
-        grid-template-columns: 34px auto 14px 1fr;
-        align-items: center;
-        gap: 10px;
-        padding: 11px 18px;
-        border-bottom: 1px dashed var(--line);
-        font-size: 14.5px;
-      }
-      .record-list li:last-child {
-        border-bottom: none;
-      }
-      .record-list li:hover {
-        background: var(--paper);
-      }
-
-      .line-no {
-        font-family: "JetBrains Mono", monospace;
-        font-size: 11.5px;
-        color: var(--ink-faint);
-        direction: ltr;
-        text-align: center;
-      }
-      .key {
-        font-weight: 600;
-        color: var(--ink-soft);
-        white-space: nowrap;
-      }
-      .colon {
-        color: var(--amber);
-        font-weight: 700;
-      }
-      .value {
-        color: var(--ink);
-        font-weight: 500;
-        overflow-wrap: anywhere;
-      }
-      .value.mono {
-        direction: ltr;
-        text-align: left;
-        color: var(--teal-deep);
-        font-size: 13.5px;
-      }
-
-      /* ---------- SECTIONS ---------- */
-      .block {
-        margin-bottom: 36px;
-        opacity: 0;
-        animation: rise 0.7s ease-out forwards;
-      }
-      .block:nth-of-type(1) {
-        animation-delay: 0.26s;
-      }
-      .block:nth-of-type(2) {
-        animation-delay: 0.32s;
-      }
-      .block:nth-of-type(3) {
-        animation-delay: 0.38s;
-      }
-
-      .block-title {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        font-size: 19px;
-        font-weight: 800;
-        color: var(--ink);
-        margin-bottom: 16px;
-      }
-      .block-title .tag {
-        color: var(--amber);
-        font-family: "JetBrains Mono", monospace;
-        font-weight: 700;
-        font-size: 18px;
-      }
-
-      .edu h3 {
-        font-size: 16.5px;
-        font-weight: 700;
-        margin-bottom: 4px;
-      }
-      .edu p {
-        color: var(--ink-soft);
-        font-size: 14.5px;
-      }
-      .edu .meta {
-        margin-top: 6px;
-        font-size: 13.5px;
-        color: var(--ink-faint);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .edu .meta .dot {
-        color: var(--amber);
-      }
-      .edu .meta .gpa {
-        font-family: "JetBrains Mono", monospace;
-        direction: ltr;
-        color: var(--teal-deep);
-        font-weight: 600;
-      }
-
-      .summary {
-        font-size: 15px;
-        color: var(--ink-soft);
-        line-height: 2;
-        max-width: 66ch;
-      }
-
-      /* ---------- SKILLS ---------- */
-      .skills-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-      }
-      .skill-row {
-        display: grid;
-        grid-template-columns: 150px 1fr;
-        gap: 16px;
-        align-items: start;
-      }
-      .skill-label {
-        font-size: 13.5px;
-        font-weight: 700;
-        color: var(--ink-faint);
-        padding-top: 8px;
-        white-space: nowrap;
-      }
-      .chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      .chip {
-        font-size: 13px;
-        font-weight: 600;
-        padding: 7px 14px;
-        border-radius: 9px;
-        border: 1px solid var(--line);
-        background: var(--card);
-        color: var(--ink-soft);
-        direction: ltr;
-      }
-      .chip.fa {
-        direction: rtl;
-      }
-      .chip-primary {
-        background: var(--teal-deep);
-        color: #eaf3f1;
-        border-color: var(--teal-deep);
-      }
-      .chip-known {
-        border-color: var(--teal);
-        color: var(--teal-deep);
-      }
-      .chip-lang {
-        background: var(--amber);
-        border-color: var(--amber);
-        color: #fff;
-      }
-
-      /* ---------- FOOTER ---------- */
-      .foot-line {
-        margin-top: 44px;
-        padding-top: 18px;
-        border-top: 1px solid var(--line);
-        font-size: 12px;
-        color: var(--ink-faint);
-        text-align: center;
-        font-family: "JetBrains Mono", monospace;
-        direction: ltr;
-      }
-
-      @keyframes rise {
-        from {
-          opacity: 0;
-          transform: translateY(14px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .hero,
-        .record-card,
-        .block {
-          animation: none !important;
-          opacity: 1 !important;
-          transform: none !important;
-        }
-      }
-
-      @media (max-width: 560px) {
-        body {
-          padding: 34px 14px 100px;
-        }
-        .record-list li {
-          grid-template-columns: 24px auto 10px 1fr;
-          font-size: 13.5px;
-          gap: 7px;
-        }
-        .skill-row {
-          grid-template-columns: 1fr;
-        }
-        .skill-label {
-          padding-top: 0;
-        }
-      }
-
-      @page {
-        size: A4;
-        margin: 12mm 14mm;
-      }
-
-      @media print {
-        html,
-        body {
-          background: #fff;
-          padding: 0;
-          margin: 0;
-          line-height: 1.55;
-        }
-        .page {
-          max-width: 100%;
-        }
-        .record-card {
-          box-shadow: none;
-          border-color: #d9d6cb;
-        }
-        .hero,
-        .record-card,
-        .block {
-          animation: none !important;
-          opacity: 1 !important;
-          transform: none !important;
-        }
-        .pdf-btn {
-          display: none !important;
-        }
-
-        .hero {
-          margin-bottom: 14px;
-          gap: 10px;
-        }
-        .hero-top {
-          padding-bottom: 8px;
-          gap: 10px;
-        }
-        .name {
-          font-size: 26px;
-        }
-        .role {
-          font-size: 13.5px;
-        }
-        .role .mono {
-          font-size: 11px;
-        }
-        .badges {
-          gap: 6px;
-        }
-        .badge {
-          font-size: 10.5px;
-          padding: 3px 10px;
-        }
-
-        .record-card {
-          margin-bottom: 16px;
-        }
-        .record-head {
-          padding: 7px 14px;
-        }
-        .record-title {
-          font-size: 10.5px;
-        }
-        .record-list li {
-          padding: 5px 14px;
-          font-size: 11.5px;
-          gap: 8px;
-        }
-        .value.mono {
-          font-size: 11px;
-        }
-        .line-no {
-          font-size: 9.5px;
-        }
-
-        .block {
-          margin-bottom: 14px;
-        }
-        .block-title {
-          font-size: 14.5px;
-          margin-bottom: 8px;
-        }
-        .block-title .tag {
-          font-size: 14px;
-        }
-
-        .edu h3 {
-          font-size: 13px;
-        }
-        .edu p {
-          font-size: 11.5px;
-        }
-        .edu .meta {
-          font-size: 11px;
-          margin-top: 3px;
-        }
-
-        .summary {
-          font-size: 11.5px;
-          line-height: 1.7;
-          max-width: none;
-        }
-
-        .skills-grid {
-          gap: 8px;
-        }
-        .skill-row {
-          grid-template-columns: 120px 1fr;
-          gap: 10px;
-        }
-        .skill-label {
-          font-size: 11px;
-          padding-top: 3px;
-        }
-        .chip {
-          font-size: 10.5px;
-          padding: 4px 10px;
-          border-radius: 7px;
-        }
-
-        .foot-line {
-          margin-top: 18px;
-          padding-top: 10px;
-          font-size: 9.5px;
-        }
-
-        * {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-
-        .hero,
-        .record-card,
-        .block,
-        .record-list li {
-          break-inside: avoid;
-          page-break-inside: avoid;
-        }
-      }
-
-      /* ---------- LINKS ---------- */
-      .value a,
-      .foot-line a {
-        color: inherit;
-        text-decoration: none;
-        border-bottom: 1px dashed rgba(14, 82, 88, 0.35);
-        transition:
-          border-color 0.15s ease,
-          color 0.15s ease;
-      }
-      .value a:hover {
-        color: var(--amber);
-        border-color: var(--amber);
-      }
-
-      /* ---------- PDF BUTTON ---------- */
-      .pdf-btn {
-        position: fixed;
-        top: 22px;
-        left: 22px;
-        z-index: 20;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 18px;
-        background: var(--teal-deep);
-        color: #eaf3f1;
-        border: none;
-        border-radius: 999px;
-        font-family: "Vazirmatn", sans-serif;
-        font-size: 13.5px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 6px 18px -6px rgba(10, 58, 63, 0.55);
-        opacity: 0;
-        animation: rise 0.7s ease-out 0.44s forwards;
-        transition:
-          transform 0.15s ease,
-          box-shadow 0.15s ease,
-          background 0.15s ease;
-      }
-      .pdf-btn:hover {
-        background: var(--teal);
-        transform: translateY(-1px);
-        box-shadow: 0 10px 22px -6px rgba(10, 58, 63, 0.6);
-      }
-      .pdf-btn:active {
-        transform: translateY(0);
-      }
-      .pdf-btn svg {
-        width: 15px;
-        height: 15px;
-        flex-shrink: 0;
-      }
-
-      @media (max-width: 560px) {
-        .pdf-btn {
-          top: auto;
-          bottom: 18px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: calc(100% - 32px);
-          justify-content: center;
-        }
-        .pdf-btn:hover {
-          transform: translateX(-50%) translateY(-1px);
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <button
-      class="pdf-btn"
-      onclick="window.print()"
-      aria-label="دانلود به صورت PDF"
-    >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M12 3v12" />
-        <path d="M7 10l5 5 5-5" />
-        <path d="M5 21h14" />
-      </svg>
-      دانلود PDF
-    </button>
     <div class="page">
       <header class="hero">
         <div class="hero-top">
           <h1 class="name">میثم معانی</h1>
-          <p class="role">
-            توسعه‌دهنده بک‌اند <span class="mono">(Node.js)</span>
-          </p>
+          <div class="header-actions">
+            <button
+              class="pdf-btn"
+              onclick="window.print()"
+              aria-label="دانلود به صورت PDF"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3v12" />
+                <path d="M7 10l5 5 5-5" />
+                <path d="M5 21h14" />
+              </svg>
+              <span class="pdf-btn-label">دانلود PDF</span>
+            </button>
+
+            <button
+              class="theme-btn"
+              id="themeToggle"
+              aria-label="تغییر حالت تیره و روشن"
+              title="حالت تیره / روشن"
+            >
+              <svg
+                class="icon-sun"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path
+                  d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+                />
+              </svg>
+              <svg
+                class="icon-moon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div class="badges">
-          <span class="badge location">تبریز، آذربایجان شرقی</span>
+          <span class="badge location"
+            >چهارراه‌لاله، تبریز، آذربایجان شرقی</span
+          >
           <span class="badge">وضعیت سربازی: پایان خدمت</span>
           <span class="badge">وضعیت تأهل: مجرد</span>
-          <span class="badge">تاریخ تولد: ۱۳۷۹/۰۷/۳۰</span>
+          <span class="badge">تاریخ تولد: ۱۳۷۹/۰۷/۳۰ (۲۵ سال)</span>
         </div>
       </header>
 
       <section class="record-card" aria-label="اطلاعات تماس">
         <div class="record-head">
-          <span class="record-title">contact.json</span>
           <span class="record-dots"><i></i><i></i><i></i></span>
         </div>
         <ul class="record-list">
@@ -712,74 +164,93 @@
         </ul>
       </section>
 
-      <section class="block">
-        <h2 class="block-title"><span class="tag">#</span> تحصیلات</h2>
-        <div class="edu">
-          <h3>کارشناسی حسابداری</h3>
-          <p>
-            دانشگاه آزاد اسلامی واحد تبریز
-            <span class="dot">•</span>
-            <span class="dot">•</span>
-            <span>۱۴۰۳</span>
-            <span class="dot">•</span>
-            <span class="dot">•</span>
-            <span>معدل: 16</span>
-            <!-- <span>معدل: <span class="gpa">16</span></span> -->
-          </p>
-          <p>مسلط به اکسل(excel)</p>
-          <p>تجربه کار با سپیدار</p>
+      <div class="blocks-grid">
+        <div class="blocks-pair">
+          <section class="block">
+            <h2 class="block-title">
+              <span class="tag">#</span> خلاصه حرفه‌ای
+            </h2>
+            <p class="summary">
+              بیش از ۶ سال تجربه در برنامه‌نویسی (از سال ۲۰۱۸)، متخصص در طراحی
+              کدهای تمیز، ماژولار و توسعه‌پذیر
+            </p>
+            <p class="summary">
+              علاقه‌مند به حوزه مالی و فین‌تک، با پیشینه‌ای در اتوماسیون
+              فرآیندها، اسکریپت‌نویسی و استخراج داده که تصمیم‌گیری فنی را با
+              شناخت دقیق‌تری از نیازهای کسب‌وکار همراه می‌کند.
+            </p>
+          </section>
 
-          <!-- <p class="meta"> -->
+          <section class="block">
+            <h2 class="block-title"><span class="tag">#</span> تحصیلات</h2>
+            <div class="edu">
+              <h3>کارشناسی حسابداری</h3>
+              <p>
+                دانشگاه آزاد اسلامی واحد تبریز
+                <span class="dot">-</span>
+                <span>۱۴۰۳</span>
+                <span class="dot">-</span>
+                <span>معدل: ۱۶</span>
+              </p>
+              <p>تجربه کار با اکسل (Excel)</p>
+              <p>تجربه کار با نرم‌افزار سپیدار</p>
+            </div>
+          </section>
         </div>
-      </section>
 
-      <section class="block">
-        <h2 class="block-title"><span class="tag">#</span> خلاصه حرفه‌ای</h2>
-        <p class="summary">
-          برنامه‌نویس با بیش از ۶ سال تجربه (از سال ۲۰۱۸) در توسعه نرم‌افزار،
-          متمرکز بر بک‌اند با Node.js و TypeScript. مسلط به
-          JavaScript/TypeScript، آشنا با C++ و MQL و دارای دانش پایه در Python و
-          HTML/CSS. علاقه‌مند به توسعه سیستم‌های مقیاس‌پذیر و پروژه‌های واقعی.
-        </p>
-      </section>
+        <div class="blocks-solo">
+          <section class="block">
+            <h2 class="block-title"><span class="tag">#</span> مهارت‌ها</h2>
+            <div class="skills-grid">
+              <div class="skill-row">
+                <span class="skill-label">فناوری‌ها و ابزارها</span>
+                <div class="chips">
+                  <span class="chip chip-known">SQL</span>
+                  <span class="chip chip-known">NoSQL</span>
+                  <span class="chip chip-known">ExpressJs</span>
+                  <span class="chip chip-known">NestJs</span>
+                  <span class="chip chip-known">Scraping</span>
+                  <span class="chip chip-known"
+                    >Automation &amp; Scripting</span
+                  >
+                  <span class="chip chip-known"
+                    >Telegram Bot API &amp; CLI</span
+                  >
+                  <span class="chip chip-known">Testing</span>
+                  <span class="chip chip-known">C++</span>
+                  <span class="chip chip-known">MQL</span>
+                </div>
+              </div>
 
-      <section class="block">
-        <!-- <h2 class="block-title"><span class="tag">#</span> مهارت‌های فنی</h2> -->
-        <h2 class="block-title"><span class="tag">#</span>مهارت‌ها</h2>
-        <div class="skills-grid">
-          <div class="skill-row">
-            <span class="skill-label">تخصص اصلی</span>
-            <div class="chips">
-              <span class="chip chip-primary">JavaScript</span>
-              <span class="chip chip-primary">TypeScript</span>
-              <span class="chip chip-primary">Node.js</span>
+              <div class="skill-row">
+                <span class="skill-label">تخصص اصلی</span>
+                <div class="chips">
+                  <span class="chip chip-primary">JavaScript</span>
+                  <span class="chip chip-primary">TypeScript</span>
+                  <span class="chip chip-primary">Node.js</span>
+                </div>
+              </div>
+
+              <div class="skill-row">
+                <span class="skill-label">آشنایی</span>
+                <div class="chips">
+                  <span class="chip">Python</span>
+                  <span class="chip">HTML/CSS</span>
+                </div>
+              </div>
+
+              <div class="skill-row">
+                <span class="skill-label">زبان انگلیسی</span>
+                <div class="chips">
+                  <span class="chip chip-lang fa">بسیار خوب</span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="skill-row">
-            <span class="skill-label">زبان‌ها و تکنولوژی‌های کارشده</span>
-            <div class="chips">
-              <span class="chip chip-known">C++</span>
-              <span class="chip chip-known">MQL</span>
-            </div>
-          </div>
-          <div class="skill-row">
-            <span class="skill-label">آشنایی</span>
-            <div class="chips">
-              <span class="chip">Python</span>
-              <span class="chip">HTML/CSS</span>
-            </div>
-          </div>
-          <div class="skill-row">
-            <span class="skill-label">زبان انگلیسی</span>
-            <div class="chips">
-              <span class="chip chip-lang fa">بسیار خوب</span>
-            </div>
-          </div>
+          </section>
         </div>
-      </section>
-
-      <!-- <div class="foot-line">// resume.render(meisam-maani) — updated 1405</div> -->
+      </div>
     </div>
+
+    <script src="script.js"></script>
   </body>
 </html>
-
