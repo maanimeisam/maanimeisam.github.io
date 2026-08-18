@@ -1,0 +1,2095 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0B0E13" />
+    <title>term — develop code into prints</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230B0E13'/%3E%3Crect x='6' y='6' width='12' height='12' rx='2' fill='%23E8A33D'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --floor: #0b0e13; /* darkroom floor */
+        --chrome: #121722;
+        --chrome-2: #171d2a;
+        --hair: rgba(231, 220, 198, 0.09);
+        --text: #e7dcc6;
+        --dim: #8a93a2;
+        --faint: #565f6e;
+        --amber: #e8a33d;
+        --amber-2: #f2c064;
+        --emerald: #7ce0a8;
+        --mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        --code:
+          "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+        color-scheme: dark;
+      }
+      body {
+        background: var(--floor);
+        color: var(--text);
+        font-family: var(--mono);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        padding: 0 20px;
+      }
+      /* faint drafting grid on the bench */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image: radial-gradient(
+          rgba(231, 220, 198, 0.05) 1px,
+          transparent 1.5px
+        );
+        background-size: 30px 30px;
+      }
+      ::selection {
+        background: rgba(232, 163, 61, 0.3);
+      }
+      :focus-visible {
+        outline: 2px solid var(--amber-2);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+        max-width: 860px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        padding: 26px 0 34px;
+      }
+
+      /* ── masthead ─────────────────────────────── */
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 0 4px 14px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        user-select: none;
+      }
+      .mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        background: var(--chrome-2);
+        border: 1px solid var(--hair);
+        color: var(--amber);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: -0.06em;
+      }
+      .brand .name {
+        font-size: 16px;
+        letter-spacing: 0.01em;
+      }
+      .brand .name .dot {
+        color: var(--amber);
+      }
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--dim);
+      }
+      .led {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--faint);
+      }
+      .status.ready .led {
+        background: var(--faint);
+      }
+      .status.busy .led {
+        background: var(--amber);
+        animation: pulse 1s ease-in-out infinite;
+      }
+      .status.done .led {
+        background: var(--emerald);
+        box-shadow: 0 0 0 4px rgba(124, 224, 168, 0.12);
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      .tagline {
+        padding: 0 4px 22px;
+        font-size: 12.5px;
+        color: var(--dim);
+        letter-spacing: 0.02em;
+      }
+      .tagline b {
+        color: var(--text);
+        font-weight: 700;
+      }
+      .tagline .arrow {
+        color: var(--amber);
+      }
+
+      /* ── the instrument ───────────────────────── */
+      .wrap {
+        position: relative;
+        display: flex;
+        justify-content: center;
+      }
+      .wrap::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -40px;
+        transform: translateX(-50%);
+        width: min(760px, 110%);
+        height: 440px;
+        pointer-events: none;
+        background: radial-gradient(
+          52% 62% at 50% 6%,
+          rgba(232, 163, 61, 0.1),
+          transparent 72%
+        );
+      }
+
+      .stage {
+        position: relative;
+        width: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--hair);
+        box-shadow:
+          0 46px 90px -46px rgba(0, 0, 0, 0.85),
+          0 1px 0 rgba(255, 255, 255, 0.04) inset;
+        font-family: var(--code);
+        --gw: 52px;
+      }
+      .stage.no-gutter {
+        --gw: 0px;
+      }
+      .stage.no-gutter .ln {
+        display: none;
+      }
+
+      /* theme stocks */
+      .stage[data-theme="phosphor"] {
+        --bg: #10151e;
+        --header: #161d29;
+        --text: #e7dcc6;
+        --kw: #e8a33d;
+        --str: #a3cf9e;
+        --num: #c9b8e8;
+        --com: #59616f;
+        --fn: #8fb8e8;
+        --var: #8fb8e8;
+        --tag: #e8a33d;
+        --attr: #8fb8e8;
+        --prp: #e8a33d;
+        --val: #a3cf9e;
+        --punct: #9aa4b2;
+        --gutter: #3a4350;
+        --edge: #8a93a2;
+        --hair: rgba(231, 220, 198, 0.1);
+        --dots: #3a4350;
+        --cursor: #e8a33d;
+      }
+      .stage[data-theme="emerald"] {
+        --bg: #0c1410;
+        --header: #101b14;
+        --text: #c9e8d5;
+        --kw: #7ce0a8;
+        --str: #e7d89a;
+        --num: #a8c9e8;
+        --com: #4a5a4f;
+        --fn: #7fd6d6;
+        --var: #7fd6d6;
+        --tag: #7ce0a8;
+        --attr: #7fd6d6;
+        --prp: #7ce0a8;
+        --val: #e7d89a;
+        --punct: #93a99a;
+        --gutter: #33443a;
+        --edge: #7fa08c;
+        --hair: rgba(201, 232, 213, 0.1);
+        --dots: #33443a;
+        --cursor: #7ce0a8;
+      }
+      .stage[data-theme="snow"] {
+        --bg: #f5f3ee;
+        --header: #eceae2;
+        --text: #1e242c;
+        --kw: #a6442e;
+        --str: #2e6b4f;
+        --num: #5c46a6;
+        --com: #9aa2ae;
+        --fn: #2563a8;
+        --var: #2563a8;
+        --tag: #a6442e;
+        --attr: #2563a8;
+        --prp: #a6442e;
+        --val: #2e6b4f;
+        --punct: #5a6472;
+        --gutter: #c4c2b8;
+        --edge: #8a8c88;
+        --hair: rgba(30, 36, 44, 0.12);
+        --dots: #c4c2b8;
+        --cursor: #a6442e;
+      }
+
+      .chrome {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        height: 42px;
+        padding: 0 18px;
+        background: var(--header);
+        border-bottom: 1px solid var(--hair);
+        font-family: var(--mono);
+      }
+      .winbtns {
+        display: flex;
+        gap: 7px;
+        flex-shrink: 0;
+      }
+      .winbtns i {
+        width: 9px;
+        height: 9px;
+        border-radius: 2.5px;
+        background: var(--dots);
+      }
+      .winbtns i:first-child {
+        background: var(--kw);
+      }
+      .chrome .file {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: var(--text);
+      }
+      .chrome .file .tilde {
+        color: var(--edge);
+        font-weight: 400;
+      }
+      .chrome .lang {
+        margin-left: auto;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--edge);
+        background: var(--bg);
+        border: 1px solid var(--hair);
+        border-radius: 999px;
+        padding: 4px 10px;
+      }
+
+      .codewrap {
+        position: relative;
+        font-size: 14.5px;
+        line-height: 1.7;
+      }
+      .gutter {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: var(--gw);
+        background: linear-gradient(90deg, rgba(0, 0, 0, 0.14), transparent);
+        pointer-events: none;
+      }
+      .code {
+        margin-left: var(--gw);
+        min-height: 72px;
+        padding: 24px 0 26px;
+      }
+      .line {
+        display: flex;
+      }
+      .ln {
+        flex: 0 0 var(--gw);
+        width: var(--gw);
+        text-align: right;
+        padding-right: 14px;
+        color: var(--gutter);
+        user-select: none;
+        font-variant-numeric: tabular-nums;
+      }
+      .row {
+        flex: 1;
+        min-width: 0;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        tab-size: 4;
+        font-variant-ligatures: none;
+      }
+      .row.placeholder {
+        color: var(--com);
+      }
+
+      .kw {
+        color: var(--kw);
+      }
+      .str {
+        color: var(--str);
+      }
+      .num {
+        color: var(--num);
+      }
+      .com {
+        color: var(--com);
+      }
+      .fn {
+        color: var(--fn);
+      }
+      .var {
+        color: var(--var);
+      }
+      .tag {
+        color: var(--tag);
+      }
+      .attr {
+        color: var(--attr);
+      }
+      .prp {
+        color: var(--prp);
+      }
+      .val {
+        color: var(--val);
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 9px;
+        height: 1.05em;
+        margin-left: 1px;
+        background: var(--cursor);
+        vertical-align: text-bottom;
+        animation: blink 1.15s steps(2, start) infinite;
+      }
+      @keyframes blink {
+        0%,
+        55% {
+          opacity: 1;
+        }
+        56%,
+        100% {
+          opacity: 0;
+        }
+      }
+
+      textarea#src {
+        position: absolute;
+        left: var(--gw);
+        top: 0;
+        width: calc(100% - var(--gw));
+        height: 100%;
+        resize: none;
+        border: 0;
+        outline: 0;
+        padding: 24px 0 26px;
+        margin: 0;
+        overflow: hidden;
+        background: transparent;
+        color: transparent;
+        caret-color: transparent;
+        font: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        tab-size: 4;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        font-variant-ligatures: none;
+        -webkit-font-smoothing: antialiased;
+      }
+      textarea#src::selection {
+        background: rgba(232, 163, 61, 0.22);
+      }
+      .stage[data-theme="snow"] textarea#src::selection {
+        background: rgba(166, 68, 46, 0.18);
+      }
+
+      /* exposure flash */
+      .stage .flash {
+        position: absolute;
+        inset: 0;
+        z-index: 6;
+        pointer-events: none;
+        background: radial-gradient(
+          90% 90% at 50% 50%,
+          rgba(255, 252, 240, 0.3),
+          rgba(255, 252, 240, 0.04)
+        );
+        opacity: 0;
+        border-radius: inherit;
+      }
+      .stage.developing .flash {
+        animation: flash 0.5s ease-out;
+      }
+      @keyframes flash {
+        0% {
+          opacity: 0;
+        }
+        12% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      /* CRT scanlines, kept faint */
+      .stage::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.045) 0 1px,
+          transparent 1px 3px
+        );
+        border-radius: inherit;
+      }
+
+      .edge {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 0 18px;
+        height: 34px;
+        border-top: 1px solid var(--hair);
+        background: var(--bg);
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        color: var(--edge);
+      }
+      .edge .brand {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 11px;
+      }
+      .edge .brand i {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        background: var(--kw);
+      }
+
+      /* ── control deck ─────────────────────────── */
+      .deck {
+        margin-top: 22px;
+        background: var(--chrome);
+        border: 1px solid var(--hair);
+        border-radius: 14px;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        flex-wrap: wrap;
+      }
+      .deck .grp {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .deck .glabel {
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-right: 2px;
+      }
+      .deck .divider {
+        width: 1px;
+        align-self: stretch;
+        background: var(--hair);
+      }
+
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--text);
+        background: var(--chrome-2)
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' fill='none' stroke='%238A93A2' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")
+          no-repeat right 11px center;
+        border: 1px solid var(--hair);
+        border-radius: 9px;
+        padding: 9px 30px 9px 12px;
+        cursor: pointer;
+      }
+      select:hover {
+        border-color: rgba(231, 220, 198, 0.22);
+      }
+
+      .stocks {
+        display: flex;
+        gap: 8px;
+      }
+      .stock {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--dim);
+        background: var(--chrome-2);
+        border: 1px solid var(--hair);
+        border-radius: 9px;
+        padding: 8px 13px;
+        cursor: pointer;
+        transition:
+          color 0.15s,
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      .stock .sw {
+        display: inline-flex;
+        gap: 3px;
+      }
+      .stock .sw i {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+      }
+      .stock:hover {
+        color: var(--text);
+        border-color: rgba(231, 220, 198, 0.22);
+      }
+      .stock[aria-pressed="true"] {
+        color: var(--text);
+        border-color: rgba(232, 163, 61, 0.55);
+        box-shadow: 0 0 0 3px rgba(232, 163, 61, 0.12);
+      }
+
+      .deck .actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        appearance: none;
+        border: 1px solid var(--hair);
+        border-radius: 10px;
+        background: var(--chrome-2);
+        color: var(--dim);
+        font-family: var(--mono);
+        font-size: 12.5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          color 0.15s,
+          border-color 0.15s,
+          background 0.15s,
+          transform 0.06s;
+      }
+      .btn:hover {
+        color: var(--text);
+        border-color: rgba(231, 220, 198, 0.25);
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn svg {
+        width: 14px;
+        height: 14px;
+      }
+      .btn-primary {
+        background: var(--amber);
+        border-color: var(--amber);
+        color: #1a1206;
+        font-weight: 700;
+        padding: 10px 20px;
+      }
+      .btn-primary:hover {
+        background: var(--amber-2);
+        border-color: var(--amber-2);
+        color: #1a1206;
+      }
+      .btn-primary svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .hint {
+        padding: 14px 6px 0;
+        font-size: 11px;
+        color: var(--faint);
+        letter-spacing: 0.02em;
+        text-align: center;
+      }
+      .hint kbd {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--dim);
+        border: 1px solid var(--hair);
+        border-bottom-width: 2px;
+        border-radius: 5px;
+        padding: 1px 5px;
+      }
+
+      footer {
+        margin-top: auto;
+        padding-top: 30px;
+        text-align: center;
+        font-size: 10.5px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--faint);
+      }
+      footer b {
+        color: var(--dim);
+        font-weight: 400;
+      }
+
+      /* ── responsive ───────────────────────────── */
+      @media (max-width: 680px) {
+        .deck {
+          align-items: stretch;
+          flex-direction: column;
+          gap: 14px;
+        }
+        .deck .divider {
+          width: auto;
+          height: 1px;
+        }
+        .deck .actions {
+          margin-left: 0;
+        }
+        .deck .actions .btn {
+          flex: 1;
+          justify-content: center;
+        }
+        .stocks {
+          flex-wrap: wrap;
+        }
+        .codewrap {
+          font-size: 13.5px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+        .cursor {
+          animation: none;
+        }
+        .led {
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- masthead -->
+      <header class="top">
+        <div class="brand">
+          <span class="mark">&gt;_</span>
+          <span class="name">term</span>
+        </div>
+        <div class="status ready" id="status" aria-live="polite">
+          <span class="led" id="led"></span>
+          <span id="statusText">ready</span>
+        </div>
+      </header>
+
+      <p class="tagline">
+        Code <span class="arrow">→</span> print. Paste anything, pick a
+        <b>stock</b>, develop a <b>PNG</b>.
+      </p>
+
+      <!-- the instrument -->
+      <div class="wrap">
+        <div class="stage" id="stage" data-theme="phosphor">
+          <div class="chrome">
+            <span class="winbtns" aria-hidden="true"
+              ><i></i><i></i><i></i
+            ></span>
+            <span class="file"
+              ><span class="tilde">~</span>
+              <span id="chromeFile">sample.js</span></span
+            >
+            <span class="lang" id="chromeLang">javascript</span>
+          </div>
+          <div class="codewrap">
+            <div class="gutter" aria-hidden="true"></div>
+            <div class="code" id="code"></div>
+            <textarea
+              id="src"
+              spellcheck="false"
+              autocomplete="off"
+              autocapitalize="off"
+              aria-label="Code input"
+            ></textarea>
+          </div>
+          <div class="edge">
+            <span id="edgeMeta">javascript · 0 lines · 0 characters</span>
+            <span class="brand"><i aria-hidden="true"></i>term</span>
+          </div>
+          <div class="flash" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <!-- control deck -->
+      <div class="deck">
+        <div class="grp">
+          <span class="glabel">Language</span>
+          <select id="langSel" aria-label="Language">
+            <option value="auto" selected>auto</option>
+            <option value="js">javascript</option>
+            <option value="python">python</option>
+            <option value="html">html</option>
+            <option value="css">css</option>
+            <option value="json">json</option>
+            <option value="shell">shell</option>
+            <option value="text">text</option>
+          </select>
+        </div>
+
+        <span class="divider" aria-hidden="true"></span>
+
+        <div class="grp">
+          <span class="glabel">Stock</span>
+          <div class="stocks" role="group" aria-label="Theme">
+            <button
+              class="stock"
+              data-theme="phosphor"
+              aria-pressed="true"
+              type="button"
+            >
+              <span class="sw" aria-hidden="true"
+                ><i style="background: #e7dcc6"></i
+                ><i style="background: #e8a33d"></i
+                ><i style="background: #a3cf9e"></i
+              ></span>
+              phosphor
+            </button>
+            <button
+              class="stock"
+              data-theme="emerald"
+              aria-pressed="false"
+              type="button"
+            >
+              <span class="sw" aria-hidden="true"
+                ><i style="background: #c9e8d5"></i
+                ><i style="background: #7ce0a8"></i
+                ><i style="background: #e7d89a"></i
+              ></span>
+              emerald
+            </button>
+            <button
+              class="stock"
+              data-theme="snow"
+              aria-pressed="false"
+              type="button"
+            >
+              <span class="sw" aria-hidden="true"
+                ><i style="background: #1e242c"></i
+                ><i style="background: #a6442e"></i
+                ><i style="background: #2e6b4f"></i
+              ></span>
+              snow
+            </button>
+          </div>
+        </div>
+
+        <span class="divider" aria-hidden="true"></span>
+
+        <div class="actions">
+          <button class="btn" id="gutterBtn" type="button" aria-pressed="true">
+            # lines
+          </button>
+          <button class="btn" id="copyBtn" type="button">Copy code</button>
+          <button class="btn" id="sampleBtn" type="button">Sample</button>
+          <button class="btn" id="clearBtn" type="button">Clear</button>
+          <button class="btn btn-primary" id="develop" type="button">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 3v11" />
+              <path d="m7.5 10.5 4.5 4.5 4.5-4.5" />
+              <path d="M4 20h16" />
+            </svg>
+            Develop PNG
+          </button>
+        </div>
+      </div>
+
+      <p class="hint">
+        <kbd>⇥</kbd> Tab indents &nbsp;·&nbsp; drop a file to load &nbsp;·&nbsp;
+        <kbd>⌘/Ctrl ⏎</kbd> develop &nbsp;·&nbsp; <kbd>⌘/Ctrl ⇧ C</kbd> copy
+      </p>
+
+      <footer>
+        term — develop code into prints · <b>nothing leaves this tab</b>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+        var $ = function (id) {
+          return document.getElementById(id);
+        };
+        var ta = $("src"),
+          codeEl = $("code"),
+          chromeFile = $("chromeFile"),
+          chromeLang = $("chromeLang"),
+          edgeMeta = $("edgeMeta"),
+          stage = $("stage"),
+          statusEl = $("status"),
+          statusText = $("statusText"),
+          langSel = $("langSel"),
+          gutterBtn = $("gutterBtn"),
+          devBtn = $("develop"),
+          copyBtn = $("copyBtn"),
+          sampleBtn = $("sampleBtn"),
+          clearBtn = $("clearBtn");
+
+        /* ── data ─────────────────────────────────────── */
+        var LANGS = {
+          auto: { label: "auto", file: "sample", ext: "js" },
+          js: { label: "javascript", file: "sample.js", ext: "js" },
+          python: { label: "python", file: "expose.py", ext: "py" },
+          html: { label: "html", file: "plate.html", ext: "html" },
+          css: { label: "css", file: "bench.css", ext: "css" },
+          json: { label: "json", file: "job.json", ext: "json" },
+          shell: { label: "shell", file: "develop.sh", ext: "sh" },
+          text: { label: "text", file: "note.txt", ext: "txt" },
+        };
+
+        var SAMPLES = {
+          js:
+            "// darkroom bench — a greeting that waits\n" +
+            "const expose = async (name, delay = 640) => {\n" +
+            "  await new Promise((ok) => setTimeout(ok, delay));\n" +
+            "  return `developed: ${name} — ready to print`;\n" +
+            "};\n" +
+            "\n" +
+            'const batch = ["mani", "the morning", "a blank line"];\n' +
+            "for (const plate of batch) {\n" +
+            '  expose(plate).then((msg) => console.log("❯", msg));\n' +
+            "}",
+          python:
+            "# expose — a slow way to say hello\n" +
+            "from time import sleep\n" +
+            "\n" +
+            "def expose(name, delay=0.6):\n" +
+            "    sleep(delay)\n" +
+            '    return f"developed: {name} — ready to print"\n' +
+            "\n" +
+            'for plate in ["mani", "the morning", "a blank line"]:\n' +
+            '    print("❯", expose(plate))',
+          html:
+            "<!DOCTYPE html>\n" +
+            '<html lang="en">\n' +
+            "  <head>\n" +
+            '    <meta charset="utf-8" />\n' +
+            "    <title>darkroom</title>\n" +
+            "  </head>\n" +
+            "  <body>\n" +
+            "    <!-- a blank plate, waiting -->\n" +
+            '    <main class="bench">\n' +
+            "      <h1>Expose</h1>\n" +
+            "      <p>Paste code. Develop a print.</p>\n" +
+            "    </main>\n" +
+            "  </body>\n" +
+            "</html>",
+          css:
+            "/* bench.css — the darkroom floor */\n" +
+            ".bench {\n" +
+            "  margin: 0 auto;\n" +
+            "  max-width: 46rem;\n" +
+            "  background: #10151e;\n" +
+            "  border: 1px solid rgba(231, 220, 198, .1);\n" +
+            "}\n" +
+            "\n" +
+            ".bench h1 {\n" +
+            '  font: 700 2.5rem "Space Mono", monospace;\n' +
+            "  color: #e8a33d;\n" +
+            "}\n" +
+            "\n" +
+            "@media (prefers-reduced-motion: reduce) {\n" +
+            "  .bench { transition: none; }\n" +
+            "}",
+          json:
+            "{\n" +
+            '  "job": "develop",\n' +
+            '  "plates": ["mani", "the morning"],\n' +
+            '  "stock": "phosphor",\n' +
+            '  "retries": 0,\n' +
+            '  "dryRun": false\n' +
+            "}",
+          shell:
+            "#!/usr/bin/env bash\n" +
+            "# develop — build the print, then copy it out\n" +
+            "set -euo pipefail\n" +
+            "\n" +
+            'PLATE="sample.js"\n' +
+            'STOCK="${1:-phosphor}"\n' +
+            "\n" +
+            'printf "❯ developing %s on %s\\n" "$PLATE" "$STOCK"\n' +
+            "sleep 0.4\n" +
+            'printf "✔ developed — ready to download\\n"',
+          text:
+            "the darkroom bench\n" +
+            "────────────────\n" +
+            "paste code.\n" +
+            "pick a stock.\n" +
+            "develop a print.\n" +
+            "nothing leaves this tab.",
+        };
+
+        var THEMES = {
+          phosphor: {
+            bg: "#10151E",
+            header: "#161D29",
+            text: "#E7DCC6",
+            kw: "#E8A33D",
+            str: "#A3CF9E",
+            num: "#C9B8E8",
+            com: "#59616F",
+            fn: "#8FB8E8",
+            var: "#8FB8E8",
+            tag: "#E8A33D",
+            attr: "#8FB8E8",
+            prp: "#E8A33D",
+            val: "#A3CF9E",
+            punct: "#9AA4B2",
+            gutter: "#3A4350",
+            edge: "#8A93A2",
+            dots: "#3A4350",
+            hair: "rgba(231,220,198,.10)",
+          },
+          emerald: {
+            bg: "#0C1410",
+            header: "#101B14",
+            text: "#C9E8D5",
+            kw: "#7CE0A8",
+            str: "#E7D89A",
+            num: "#A8C9E8",
+            com: "#4A5A4F",
+            fn: "#7FD6D6",
+            var: "#7FD6D6",
+            tag: "#7CE0A8",
+            attr: "#7FD6D6",
+            prp: "#7CE0A8",
+            val: "#E7D89A",
+            punct: "#93A99A",
+            gutter: "#33443A",
+            edge: "#7FA08C",
+            dots: "#33443A",
+            hair: "rgba(201,232,213,.10)",
+          },
+          snow: {
+            bg: "#F5F3EE",
+            header: "#ECEAE2",
+            text: "#1E242C",
+            kw: "#A6442E",
+            str: "#2E6B4F",
+            num: "#5C46A6",
+            com: "#9AA2AE",
+            fn: "#2563A8",
+            var: "#2563A8",
+            tag: "#A6442E",
+            attr: "#2563A8",
+            prp: "#A6442E",
+            val: "#2E6B4F",
+            punct: "#5A6472",
+            gutter: "#C4C2B8",
+            edge: "#8A8C88",
+            dots: "#C4C2B8",
+            hair: "rgba(30,36,44,.12)",
+          },
+        };
+        var curTheme = "phosphor",
+          gutterOn = true,
+          dirty = false;
+
+        var KEYWORDS = {
+          js: "const let var function return if else for while do switch case break continue new class extends super this typeof instanceof in of async await try catch finally throw import export from default delete void yield static get set true false null undefined".split(
+            " ",
+          ),
+          python:
+            "def return if elif else for while in not and or is None True False import from as class try except finally with lambda pass break continue global nonlocal assert raise yield del self async await print".split(
+              " ",
+            ),
+          shell:
+            "echo cd export sudo git ls curl npm python python3 grep cat mkdir rm cp mv chmod docker source alias if then else fi for done function return read set which printf sleep touch tail head find tar ssh scp node pnpm yarn make ps kill history clear awk sed bash".split(
+              " ",
+            ),
+        };
+        var NUMRE =
+          /^(?:0[xX][0-9a-fA-F_]+|\d[\d_]*(?:\.[\d_]*)?(?:[eE][+-]?\d+)?)/;
+        var IDRE_JS = /^[A-Za-z_$][A-Za-z0-9_$]*/;
+        var IDRE = /^[A-Za-z_][A-Za-z0-9_]*/;
+
+        function esc(s) {
+          return s
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        }
+
+        /* ── tokenizers ───────────────────────────────── */
+        function scanStr(line, i, q) {
+          var out = "",
+            j = i + 1;
+          for (; j < line.length; j++) {
+            var c = line[j];
+            if (c === "\\" && j + 1 < line.length) {
+              out += c + line[j + 1];
+              j++;
+              continue;
+            }
+            if (c === q) {
+              return { x: q + out + c, i: j + 1 };
+            }
+            out += c;
+          }
+          return { x: q + out, i: line.length };
+        }
+        function scanTri(line, i, q) {
+          var out = "",
+            j = i + 3;
+          for (; j < line.length; j++) {
+            var c = line[j];
+            if (c === "\\" && j + 1 < line.length) {
+              out += c + line[j + 1];
+              j++;
+              continue;
+            }
+            if (
+              c === q &&
+              j + 2 < line.length &&
+              line[j + 1] === q &&
+              line[j + 2] === q
+            ) {
+              return { x: q + q + q + out + q + q + q, i: j + 3, closed: true };
+            }
+            out += c;
+          }
+          return { x: q + q + q + out, i: line.length, closed: false };
+        }
+
+        function tokJs(line, st) {
+          var out = [],
+            i = 0,
+            n = line.length;
+          function push(cls, s) {
+            if (s) out.push({ t: cls, x: s });
+          }
+          while (i < n) {
+            if (st.inBlock) {
+              var e = line.indexOf(st.inBlock, i);
+              if (e < 0) {
+                push("com", line.slice(i));
+                break;
+              }
+              push("com", line.slice(i, e + 2));
+              i = e + 2;
+              st.inBlock = null;
+              continue;
+            }
+            if (line.slice(i, i + 2) === "//") {
+              push("com", line.slice(i));
+              break;
+            }
+            if (line.slice(i, i + 2) === "/*") {
+              var e2 = line.indexOf("*/", i + 2);
+              if (e2 < 0) {
+                push("com", line.slice(i));
+                st.inBlock = "*/";
+                break;
+              }
+              push("com", line.slice(i, e2 + 2));
+              i = e2 + 2;
+              continue;
+            }
+            var c = line[i];
+            if (c === '"' || c === "'" || c === "`") {
+              var s = scanStr(line, i, c);
+              push("str", s.x);
+              i = s.i;
+              continue;
+            }
+            if (/\d/.test(c) || (c === "." && /\d/.test(line[i + 1] || ""))) {
+              var m = line.slice(i).match(NUMRE);
+              if (m) {
+                push("num", m[0]);
+                i += m[0].length;
+                continue;
+              }
+            }
+            var m2 = line.slice(i).match(IDRE_JS);
+            if (m2) {
+              var w = m2[0];
+              if (KEYWORDS.js.indexOf(w) >= 0) {
+                push("kw", w);
+              } else {
+                var after = line[i + w.length] || "";
+                push(after === "(" ? "fn" : "text", w);
+              }
+              i += w.length;
+              continue;
+            }
+            push("p", c);
+            i++;
+          }
+          return out;
+        }
+
+        function tokPy(line, st) {
+          var out = [],
+            i = 0,
+            n = line.length;
+          function push(cls, s) {
+            if (s) out.push({ t: cls, x: s });
+          }
+          while (i < n) {
+            if (st.inTri) {
+              var q = st.inTri,
+                e = line.indexOf(q + q + q, i);
+              if (e < 0) {
+                push("com", line.slice(i));
+                break;
+              }
+              push("com", line.slice(i, e + 3));
+              i = e + 3;
+              st.inTri = null;
+              continue;
+            }
+            if (line[i] === "#" && (i === 0 || /\s/.test(line[i - 1]))) {
+              push("com", line.slice(i));
+              break;
+            }
+            if (
+              line.slice(i, i + 3) === '"""' ||
+              line.slice(i, i + 3) === "'''"
+            ) {
+              var qq = line[i],
+                s = scanTri(line, i, qq);
+              if (!s.closed) st.inTri = qq;
+              push("com", s.x);
+              i = s.i;
+              continue;
+            }
+            var c = line[i];
+            if (c === '"' || c === "'") {
+              var s2 = scanStr(line, i, c);
+              push("str", s2.x);
+              i = s2.i;
+              continue;
+            }
+            if (c === "@" && /^@[A-Za-z_]/.test(line.slice(i))) {
+              var d = line.slice(i).match(/^@[A-Za-z_]\w*/);
+              push("var", d[0]);
+              i += d[0].length;
+              continue;
+            }
+            if (/\d/.test(c)) {
+              var m = line.slice(i).match(NUMRE);
+              if (m) {
+                push("num", m[0]);
+                i += m[0].length;
+                continue;
+              }
+            }
+            var m2 = line.slice(i).match(IDRE);
+            if (m2) {
+              var w = m2[0];
+              if (st.pendingFn) {
+                push("fn", w);
+                st.pendingFn = false;
+              } else if (w === "def" || w === "class") {
+                push("kw", w);
+                st.pendingFn = true;
+              } else if (KEYWORDS.python.indexOf(w) >= 0) {
+                push("kw", w);
+              } else push("text", w);
+              i += w.length;
+              continue;
+            }
+            push("p", c);
+            i++;
+          }
+          return out;
+        }
+
+        function tokSh(line, st) {
+          var out = [],
+            i = 0,
+            n = line.length;
+          function push(cls, s) {
+            if (s) out.push({ t: cls, x: s });
+          }
+          while (i < n) {
+            if (line[i] === "#") {
+              push("com", line.slice(i));
+              break;
+            }
+            var c = line[i];
+            if (c === '"' || c === "'" || c === "`") {
+              var s = scanStr(line, i, c);
+              push("str", s.x);
+              i = s.i;
+              continue;
+            }
+            if (c === "$") {
+              var vm = line.slice(i).match(/^\$[A-Za-z_]\w*|^\$\{[\w@%-]+\}/);
+              if (vm) {
+                push("var", vm[0]);
+                i += vm[0].length;
+                continue;
+              }
+            }
+            if (/\d/.test(c)) {
+              var m = line.slice(i).match(NUMRE);
+              if (m) {
+                push("num", m[0]);
+                i += m[0].length;
+                continue;
+              }
+            }
+            var m2 = line.slice(i).match(IDRE);
+            if (m2) {
+              var w = m2[0];
+              if (KEYWORDS.shell.indexOf(w) >= 0) {
+                push("kw", w);
+              } else push("text", w);
+              i += w.length;
+              continue;
+            }
+            push("p", c);
+            i++;
+          }
+          return out;
+        }
+
+        function tokHtml(line, st) {
+          var out = [],
+            i = 0,
+            n = line.length;
+          function push(cls, s) {
+            if (s) out.push({ t: cls, x: s });
+          }
+          if (st.inComment) {
+            var ce = line.indexOf("-->", i);
+            if (ce < 0) {
+              push("com", line.slice(i));
+              return out;
+            }
+            push("com", line.slice(i, ce + 3));
+            i = ce + 3;
+            st.inComment = null;
+          }
+          while (i < n) {
+            if (line.slice(i, i + 4) === "<!--") {
+              st.inComment = true;
+              var ce = line.indexOf("-->", i + 4);
+              if (ce < 0) {
+                push("com", line.slice(i));
+                break;
+              }
+              push("com", line.slice(i, ce + 3));
+              i = ce + 3;
+              continue;
+            }
+            if (line.slice(i, 2 + i) === "<!") {
+              var d = line.slice(i).match(/^<!DOCTYPE[^>]*>/i);
+              if (d) {
+                push("tag", d[0]);
+                i += d[0].length;
+                continue;
+              }
+            }
+            var c = line[i];
+            if (c === "<") {
+              var s = line.slice(i),
+                m = s.match(/^<\s*\/?\s*[a-zA-Z][\w-]*/);
+              if (!m) {
+                push("p", "<");
+                i++;
+                continue;
+              }
+              push("tag", m[0]);
+              i += m[0].length;
+              while (i < n && line[i] !== ">") {
+                var sp = line.slice(i).match(/^\s+/);
+                if (sp) {
+                  push("p", sp[0]);
+                  i += sp[0].length;
+                  continue;
+                }
+                if (line[i] === ">") break;
+                var am = line.slice(i).match(/^[a-zA-Z_:][\w:.-]*/);
+                if (am) {
+                  push("attr", am[0]);
+                  i += am[0].length;
+                  continue;
+                }
+                if (line[i] === "=") {
+                  push("p", "=");
+                  i++;
+                  continue;
+                }
+                if (line[i] === '"' || line[i] === "'") {
+                  var s2 = scanStr(line, i, line[i]);
+                  push("str", s2.x);
+                  i = s2.i;
+                  continue;
+                }
+                push("p", line[i]);
+                i++;
+              }
+              if (line[i] === ">") {
+                push("p", ">");
+                i++;
+              }
+              continue;
+            }
+            if (c === ">") {
+              push("p", ">");
+              i++;
+              continue;
+            }
+            var e = line.indexOf("<", i);
+            if (e < 0) e = n;
+            push("text", line.slice(i, e));
+            i = e;
+          }
+          return out;
+        }
+
+        function tokCss(line, st) {
+          var out = [],
+            i = 0,
+            n = line.length;
+          function push(cls, s) {
+            if (s) out.push({ t: cls, x: s });
+          }
+          while (i < n) {
+            if (st.inBlock) {
+              var e = line.indexOf("*/", i);
+              if (e < 0) {
+                push("com", line.slice(i));
+                break;
+              }
+              push("com", line.slice(i, e + 2));
+              i = e + 2;
+              st.inBlock = null;
+              continue;
+            }
+            if (line.slice(i, i + 2) === "/*") {
+              var e = line.indexOf("*/", i + 2);
+              if (e < 0) {
+                push("com", line.slice(i));
+                st.inBlock = "*/";
+                break;
+              }
+              push("com", line.slice(i, e + 2));
+              i = e + 2;
+              continue;
+            }
+            var c = line[i];
+            if (st.depth > 0) {
+              if (c === "}") {
+                push("p", "}");
+                st.depth--;
+                i++;
+                continue;
+              }
+              if (c === ";") {
+                push("p", ";");
+                i++;
+                continue;
+              }
+              if (c === ":") {
+                push("p", ":");
+                i++;
+                continue;
+              }
+              var pm = line.slice(i).match(/^[-\w]+\s*(?=:)/);
+              if (pm) {
+                push("prp", pm[0]);
+                i += pm[0].length;
+                continue;
+              }
+              if (c === " ") {
+                push("p", " ");
+                i++;
+                continue;
+              }
+              var v = line.slice(i).match(/^[^;}]+/);
+              if (v) {
+                push("val", v[0].replace(/^\s+/, ""));
+                i += v[0].length;
+                continue;
+              }
+              push("p", c);
+              i++;
+            } else {
+              if (c === "{") {
+                push("p", "{");
+                st.depth++;
+                i++;
+                continue;
+              }
+              if (c === "}") {
+                push("p", "}");
+                i++;
+                continue;
+              }
+              if (c === "@") {
+                var r = line.slice(i).match(/^@[\w-]+(?:\([^)]*\))?/);
+                if (r) {
+                  push("kw", r[0]);
+                  i += r[0].length;
+                  continue;
+                }
+              }
+              if (c === "-" && line[i + 1] === "-") {
+                var v = line.slice(i).match(/^--[\w-]+/);
+                if (v) {
+                  push("var", v[0]);
+                  i += v[0].length;
+                  continue;
+                }
+              }
+              var sel = line.slice(i).match(/^[^{},@]+/);
+              if (sel) {
+                push("tag", sel[0].replace(/\s+$/, ""));
+                i += sel[0].length;
+                continue;
+              }
+              push("p", c);
+              i++;
+            }
+          }
+          return out;
+        }
+
+        function tokJson(line) {
+          var out = [],
+            i = 0,
+            n = line.length;
+          function push(cls, s) {
+            if (s) out.push({ t: cls, x: s });
+          }
+          while (i < n) {
+            var c = line[i];
+            if (c === '"') {
+              var s = scanStr(line, i, c);
+              var a = (line[s.i] || "").replace(/\s+/, "");
+              push(a[0] === ":" ? "attr" : "str", s.x);
+              i = s.i;
+              continue;
+            }
+            if (/\d/.test(c) || (c === "-" && /\d/.test(line[i + 1] || ""))) {
+              var m = line.slice(i).match(NUMRE);
+              if (m) {
+                push("num", m[0]);
+                i += m[0].length;
+                continue;
+              }
+            }
+            if (c === "t") {
+              if (line.slice(i, i + 4) === "true") {
+                push("kw", "true");
+                i += 4;
+                continue;
+              }
+            }
+            if (c === "f") {
+              if (line.slice(i, i + 5) === "false") {
+                push("kw", "false");
+                i += 5;
+                continue;
+              }
+            }
+            if (c === "n") {
+              if (line.slice(i, i + 4) === "null") {
+                push("kw", "null");
+                i += 4;
+                continue;
+              }
+            }
+            push("p", c);
+            i++;
+          }
+          return out;
+        }
+
+        /* ── tokenize entry ───────────────────────────── */
+        function tokenize(text, lang) {
+          var st = {};
+          var lines = text.split("\n");
+          var fn = tokJs;
+          if (lang === "python") fn = tokPy;
+          else if (lang === "html") fn = tokHtml;
+          else if (lang === "css") fn = tokCss;
+          else if (lang === "json") fn = tokJson;
+          else if (lang === "shell") fn = tokSh;
+          else if (lang === "text") {
+            return lines.map(function (l) {
+              return [{ t: "text", x: l }];
+            });
+          }
+          var out = [];
+          for (var i = 0; i < lines.length; i++) out.push(fn(lines[i], st));
+          return out;
+        }
+
+        function detectLang(code) {
+          var t = code.trim();
+          if (!t) return "js";
+          if (/^<!doctype|^<html|<\/(div|main|p|body|h[1-6]|head)>/i.test(t))
+            return "html";
+          if (
+            /\b(def|class|from|import|print)\b/.test(t) &&
+            /^[ \t]*#/m.test(t)
+          )
+            return "python";
+          if (
+            /\{/.test(t) &&
+            /\b(background|color|margin|padding|font|display|max-width|width|height|border|position|@media|font-family)\s*:/m.test(
+              t,
+            )
+          )
+            return "css";
+          if (/^[\[{]/.test(t)) {
+            try {
+              JSON.parse(t);
+              return "json";
+            } catch (e) {}
+          }
+          if (/^#!|^[ \t]*(echo|export|sudo|curl|cd|ls|git|printf)\b/.test(t))
+            return "shell";
+          return "js";
+        }
+
+        function resolvedLang() {
+          var l = langSel.value;
+          if (l === "auto") return detectLang(ta.value);
+          return l;
+        }
+
+        /* ── render ───────────────────────────────────── */
+        function buildCode() {
+          var txt = ta.value;
+          codeEl.innerHTML = "";
+          if (!txt) {
+            var line = document.createElement("div");
+            line.className = "line";
+            var ln = document.createElement("span");
+            ln.className = "ln";
+            ln.textContent = "1";
+            var rw = document.createElement("span");
+            rw.className = "row placeholder";
+            rw.textContent = "~ % ";
+            rw.appendChild(cursor());
+            line.appendChild(ln);
+            line.appendChild(rw);
+            codeEl.appendChild(line);
+            updateMeta();
+            return;
+          }
+          var toks = tokenize(txt, resolvedLang());
+          for (var i = 0; i < toks.length; i++) {
+            var line = document.createElement("div");
+            line.className = "line";
+            var ln = document.createElement("span");
+            ln.className = "ln";
+            ln.textContent = i + 1;
+            var rw = document.createElement("span");
+            rw.className = "row";
+            for (var j = 0; j < toks[i].length; j++) {
+              var tk = toks[i][j];
+              if (tk.t === "text" || tk.t === "p") {
+                rw.appendChild(document.createTextNode(tk.x));
+              } else {
+                var s = document.createElement("span");
+                s.className = tk.t;
+                s.textContent = tk.x;
+                rw.appendChild(s);
+              }
+            }
+            line.appendChild(ln);
+            line.appendChild(rw);
+            codeEl.appendChild(line);
+          }
+          var last = codeEl.lastElementChild;
+          if (last) {
+            last.querySelector(".row").appendChild(cursor());
+          }
+          updateMeta();
+        }
+        function cursor() {
+          var c = document.createElement("span");
+          c.className = "cursor";
+          c.setAttribute("aria-hidden", "true");
+          return c;
+        }
+        function updateMeta() {
+          var txt = ta.value,
+            lines = txt ? txt.split("\n").length : 0,
+            chars = txt.length;
+          var L = LANGS[resolvedLang()];
+          chromeFile.textContent = L.file;
+          chromeLang.textContent = L.label;
+          edgeMeta.textContent =
+            L.label +
+            " · " +
+            lines +
+            " " +
+            (lines === 1 ? "line" : "lines") +
+            " · " +
+            chars +
+            " " +
+            (chars === 1 ? "character" : "characters");
+        }
+        function setStatus(txt, mode) {
+          statusText.textContent = txt;
+          statusEl.className = "status " + (mode || "ready");
+        }
+
+        /* ── editing ──────────────────────────────────── */
+        var deb;
+        ta.addEventListener("input", function () {
+          dirty = true;
+          clearTimeout(deb);
+          deb = setTimeout(buildCode, 35);
+        });
+        ta.addEventListener("keydown", function (e) {
+          if (e.key === "Tab") {
+            e.preventDefault();
+            var s = ta.selectionStart,
+              t = ta.selectionEnd;
+            ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(t);
+            ta.selectionStart = ta.selectionEnd = s + 2;
+            buildCode();
+          }
+        });
+        document.addEventListener("keydown", function (e) {
+          var mod = e.metaKey || e.ctrlKey;
+          if (mod && e.key === "Enter") {
+            e.preventDefault();
+            develop();
+          } else if (mod && e.shiftKey && (e.key === "c" || e.key === "C")) {
+            e.preventDefault();
+            copyCode();
+          }
+        });
+        stage.addEventListener("dragover", function (e) {
+          e.preventDefault();
+        });
+        stage.addEventListener("drop", function (e) {
+          e.preventDefault();
+          var f = e.dataTransfer.files && e.dataTransfer.files[0];
+          if (!f) return;
+          var r = new FileReader();
+          r.onload = function () {
+            ta.value = String(r.result);
+            dirty = true;
+            buildCode();
+            setStatus("loaded · " + f.name, "done");
+          };
+          r.readAsText(f);
+        });
+
+        /* ── controls ─────────────────────────────────── */
+        langSel.addEventListener("change", function () {
+          if (!dirty) ta.value = SAMPLES[resolvedLang()] || SAMPLES.js;
+          buildCode();
+        });
+        var stocks = document.querySelectorAll(".stock");
+        for (var si = 0; si < stocks.length; si++) {
+          stocks[si].addEventListener("click", function () {
+            curTheme = this.getAttribute("data-theme");
+            stage.setAttribute("data-theme", curTheme);
+            stage.className = "stage" + (gutterOn ? "" : " no-gutter");
+            for (var k = 0; k < stocks.length; k++)
+              stocks[k].setAttribute(
+                "aria-pressed",
+                stocks[k] === this ? "true" : "false",
+              );
+          });
+        }
+        gutterBtn.addEventListener("click", function () {
+          gutterOn = !gutterOn;
+          this.setAttribute("aria-pressed", gutterOn ? "true" : "false");
+          stage.className = "stage" + (gutterOn ? "" : " no-gutter");
+        });
+        copyBtn.addEventListener("click", copyCode);
+        sampleBtn.addEventListener("click", function () {
+          langSel.value = "auto";
+          ta.value = SAMPLES.js;
+          dirty = false;
+          buildCode();
+          setStatus("sample loaded", "done");
+        });
+        clearBtn.addEventListener("click", function () {
+          ta.value = "";
+          dirty = true;
+          buildCode();
+          setStatus("cleared", "ready");
+        });
+
+        function copyCode() {
+          if (!ta.value.trim()) {
+            setStatus("nothing to copy", "ready");
+            return;
+          }
+          function done() {
+            setStatus("copied", "done");
+            setTimeout(function () {
+              setStatus("ready", "ready");
+            }, 1800);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(ta.value).then(done, function () {
+              ta.select();
+              document.execCommand("copy");
+              done();
+            });
+          } else {
+            ta.select();
+            document.execCommand("copy");
+            done();
+          }
+        }
+
+        /* ── develop → PNG ────────────────────────────── */
+        function fontsReady() {
+          return Promise.all([
+            document.fonts.load('400 14.5px "JetBrains Mono"'),
+            document.fonts.load('700 12px "Space Mono"'),
+            document.fonts.load('400 11px "Space Mono"'),
+          ]);
+        }
+
+        function contentWidth() {
+          var rw = codeEl.querySelector(".row");
+          return rw ? rw.offsetWidth : 640;
+        }
+
+        function layoutRows(tokLines, contentW, measure) {
+          var rows = [],
+            cur = [],
+            curW = 0,
+            first = true,
+            srcNo = null;
+          function commit(src) {
+            rows.push({ tokens: cur, srcLine: src });
+            cur = [];
+            curW = 0;
+          }
+          for (var li = 0; li < tokLines.length; li++) {
+            srcNo = li + 1;
+            first = true;
+            var ts = tokLines[li];
+            for (var j = 0; j < ts.length; j++) {
+              var tk = ts[j],
+                s = tk.x.replace(/\t/g, "    ");
+              if (!s.length) continue;
+              var wid = measure(s);
+              if (wid > contentW) {
+                if (cur.length) {
+                  commit(first ? srcNo : null);
+                  first = false;
+                }
+                for (var k = 0; k < s.length; k++) {
+                  var cw = measure(s[k]);
+                  if (curW + cw > contentW && cur.length) {
+                    commit(first ? srcNo : null);
+                    first = false;
+                  }
+                  cur.push({ t: tk.t, x: s[k] });
+                  curW += cw;
+                }
+                continue;
+              }
+              if (curW + wid > contentW && cur.length) {
+                commit(first ? srcNo : null);
+                first = false;
+              }
+              cur.push({ t: tk.t, x: s });
+              curW += wid;
+            }
+            commit(first ? srcNo : null);
+          }
+          if (!rows.length) rows.push({ tokens: [], srcLine: 1 });
+          return rows;
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.arcTo(x + w, y, x + w, y + h, r);
+          ctx.arcTo(x + w, y + h, x, y + h, r);
+          ctx.arcTo(x, y + h, x, y, r);
+          ctx.arcTo(x, y, x + w, y, r);
+          ctx.closePath();
+        }
+
+        function rasterize() {
+          var theme = THEMES[curTheme];
+          var text = ta.value.trim();
+          if (!text) {
+            setStatus("nothing to develop", "ready");
+            return null;
+          }
+          var lang = resolvedLang();
+          var toks = tokenize(ta.value, lang);
+          var S = 14.5,
+            LH = S * 1.7;
+          var padL = 24,
+            padR = 24,
+            padT = 26,
+            padB = 26,
+            headerH = 42,
+            edgeH = 34;
+          var gW = gutterOn ? 52 : 0;
+          var cW = Math.max(200, contentWidth());
+
+          var mctx = document.createElement("canvas").getContext("2d");
+          mctx.font =
+            "400 " + S + 'px "JetBrains Mono", ui-monospace, Menlo, monospace';
+          var measure = function (s) {
+            return mctx.measureText(s).width;
+          };
+          var rows = layoutRows(toks, cW, measure);
+
+          var totalW = padL + gW + cW + padR;
+          var totalH = headerH + padT + rows.length * LH + padB + edgeH;
+
+          var canvas = document.createElement("canvas");
+          canvas.width = totalW * 2;
+          canvas.height = totalH * 2;
+          var ctx = canvas.getContext("2d");
+          ctx.scale(2, 2);
+          ctx.font =
+            "400 " + S + 'px "JetBrains Mono", ui-monospace, Menlo, monospace';
+          ctx.textBaseline = "alphabetic";
+          ctx.textAlign = "left";
+
+          roundRect(ctx, 0, 0, totalW, totalH, 16);
+          ctx.clip();
+
+          // body + header
+          ctx.fillStyle = theme.bg;
+          ctx.fillRect(0, 0, totalW, totalH);
+          ctx.fillStyle = theme.header;
+          ctx.fillRect(0, 0, totalW, headerH);
+
+          // window blocks
+          ctx.fillStyle = theme.dots;
+          for (var d = 0; d < 3; d++) {
+            ctx.fillRect(padL + d * 16, headerH / 2 - 4.5, 9, 9);
+          }
+          ctx.fillStyle = theme.kw;
+          ctx.fillRect(padL, headerH / 2 - 4.5, 9, 9);
+
+          // chrome text
+          ctx.font = '700 12px "Space Mono", ui-monospace, monospace';
+          ctx.fillStyle = theme.text;
+          ctx.fillText("~ " + LANGS[lang].file, padL + 52, headerH / 2 + 4.5);
+          ctx.font = '400 11px "Space Mono", ui-monospace, monospace';
+          ctx.textAlign = "right";
+          ctx.fillStyle = theme.edge;
+          ctx.fillText(
+            LANGS[lang].label.toUpperCase(),
+            totalW - padR,
+            headerH / 2 + 4,
+          );
+          ctx.textAlign = "left";
+
+          // code
+          var y = headerH + padT;
+          for (var r = 0; r < rows.length; r++) {
+            if (rows[r].srcLine !== null && gutterOn) {
+              ctx.textAlign = "right";
+              ctx.font =
+                "400 " + S + 'px "JetBrains Mono", ui-monospace, monospace';
+              ctx.fillStyle = theme.gutter;
+              ctx.fillText(
+                String(rows[r].srcLine),
+                padL + gW - 14,
+                y + (LH + S) / 2 - 1,
+              );
+              ctx.textAlign = "left";
+            }
+            var x = padL + gW;
+            ctx.font =
+              "400 " + S + 'px "JetBrains Mono", ui-monospace, monospace';
+            for (var j = 0; j < rows[r].tokens.length; j++) {
+              var tk = rows[r].tokens[j];
+              var cls = tk.t,
+                col = theme.text;
+              if (cls === "kw" || cls === "tag") col = theme.kw;
+              else if (cls === "str" || cls === "val") col = theme.str;
+              else if (cls === "num") col = theme.num;
+              else if (cls === "com") col = theme.com;
+              else if (cls === "fn" || cls === "var") col = theme.var;
+              else if (cls === "attr") col = theme.attr;
+              else if (cls === "prp") col = theme.prp;
+              else if (cls === "p") col = theme.punct;
+              ctx.fillStyle = col;
+              ctx.fillText(tk.x, x, y + (LH + S) / 2 - 1);
+              x += measure(tk.x);
+            }
+            y += LH;
+          }
+
+          // scanlines
+          for (var sy = 0; sy < totalH; sy += 3) {
+            ctx.fillStyle = "rgba(0,0,0,0.045)";
+            ctx.fillRect(0, sy, totalW, 1);
+          }
+
+          // edge print
+          var eTop = totalH - edgeH;
+          ctx.fillStyle = theme.bg;
+          ctx.fillRect(0, eTop, totalW, edgeH);
+          ctx.fillStyle = theme.hair;
+          ctx.fillRect(0, eTop, totalW, 1);
+          ctx.font = '400 11px "Space Mono", ui-monospace, monospace';
+          ctx.textAlign = "left";
+          ctx.fillStyle = theme.edge;
+          var chars = ta.value.length,
+            lines = ta.value ? ta.value.split("\n").length : 0;
+          ctx.fillText(
+            LANGS[lang].label +
+              " · " +
+              lines +
+              " " +
+              (lines === 1 ? "line" : "lines") +
+              " · " +
+              chars +
+              " " +
+              (chars === 1 ? "character" : "characters"),
+            padL,
+            eTop + edgeH / 2 + 4,
+          );
+          ctx.fillStyle = theme.kw;
+          ctx.fillRect(totalW - padR - 64, eTop + edgeH / 2 - 4, 8, 8);
+          ctx.textAlign = "right";
+          ctx.fillStyle = theme.edge;
+          ctx.fillText("term", totalW - padR, eTop + edgeH / 2 + 4);
+
+          return canvas;
+        }
+
+        function download(canvas, name) {
+          canvas.toBlob(function (blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function () {
+              URL.revokeObjectURL(url);
+            }, 4000);
+          }, "image/png");
+        }
+
+        function develop() {
+          if (!ta.value.trim()) {
+            setStatus("nothing to develop", "ready");
+            return;
+          }
+          var reduced = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+          setStatus("developing", "busy");
+          if (!reduced) {
+            stage.classList.add("developing");
+            setTimeout(function () {
+              stage.classList.remove("developing");
+            }, 520);
+          }
+          fontsReady().then(function () {
+            var t0 = performance.now();
+            var canvas = rasterize();
+            if (!canvas) return;
+            var ms = Math.max(1, Math.round(performance.now() - t0));
+            var file = LANGS[resolvedLang()].file;
+            download(canvas, file.replace(/\.[a-z]+$/, "") + ".png");
+            setStatus("developed · " + ms + " ms", "done");
+            setTimeout(function () {
+              setStatus("ready", "ready");
+            }, 2600);
+          });
+        }
+        devBtn.addEventListener("click", develop);
+
+        /* ── init ─────────────────────────────────────── */
+        ta.value = SAMPLES.js;
+        buildCode();
+        setStatus("ready", "ready");
+        document.fonts.ready.then(buildCode);
+      })();
+    </script>
+  </body>
+</html>
